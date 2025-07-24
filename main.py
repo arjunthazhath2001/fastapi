@@ -12,7 +12,7 @@ class Post(BaseModel):
     rating: Optional[int]= None
 
 
-mypost=[{"id":uuid.uuid4(),"title":"hello world","content":"how things going?"},{"id":uuid.uuid4(),"title":"hello world2","content":"how things going?2"}]
+mypost=[{"id":uuid.uuid4(),"title":"hello world","content":"how things going?"},{"id":"2","title":"hello world2","content":"how things going?2"}]
 
 #get all posts
 @app.get('/posts')
