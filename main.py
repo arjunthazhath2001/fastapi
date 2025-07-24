@@ -27,16 +27,12 @@ async def latest_post():
 
 #get specific post
 @app.get('/post/{id}')
-async def get_post(id:str,response:Response):  
-    print(id)
-    print(type(id))
+async def get_post(id:str):  
     for p in mypost:
         if id==p["id"]:
             return {"result":p}
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="not found")
-    # response.status_code = status.HTTP_404_NOT_FOUND
-    # return {"message":"wrong post id"}
-
+  
 #create a post
 @app.post('/posts')
 async def create_posts(post:Post):
