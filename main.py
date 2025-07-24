@@ -1,5 +1,5 @@
 from typing import Optional
-from fastapi import FastAPI
+from fastapi import FastAPI, Response, status, HTTPException
 from pydantic import BaseModel
 import uuid
 
@@ -20,18 +20,22 @@ async def get_posts():
     return {'posts':mypost}
 
 
+#get latest post
+@app.get('/posts/latest')
+async def latest_post():
+    return mypost[-1]
 
 #get specific post
 @app.get('/post/{id}')
-async def get_post(id:str):
+async def get_post(id:str,response:Response):  
     print(id)
     print(type(id))
     for p in mypost:
         if id==p["id"]:
             return {"result":p}
-    return {"error":"404"}
-    
-
+    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="not found")
+    # response.status_code = status.HTTP_404_NOT_FOUND
+    # return {"message":"wrong post id"}
 
 #create a post
 @app.post('/posts')
@@ -40,3 +44,5 @@ async def create_posts(post:Post):
     newpost["id"]= str(uuid.uuid4())
     mypost.append(newpost)
     return {"message":"post created"}
+
+
