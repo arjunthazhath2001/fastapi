@@ -3,6 +3,8 @@ from fastapi import FastAPI, Response, status, HTTPException
 from pydantic import BaseModel
 import uuid
 import psycopg2
+from psycopg2.extras import RealDictCursor
+import time
 
 app= FastAPI()
 
@@ -13,10 +15,16 @@ class Post(BaseModel):
     rating: Optional[int]= None
 
 
-try:
-    conn = psycopg2.connect("dbname='template1' user='dbuser' host='localhost' password='dbpass'")
-except:
-    print("I am unable to connect to the database")
+while True:
+    try:
+        conn = psycopg2.connect(dbname='fastapi', user='postgres' ,host='localhost', password='arjunomia',cursor_factory=RealDictCursor)
+        cursor= conn.cursor()
+        print("🦄🦄🦄🦄🦄🦄Connection scuccess🦄🦄🦄🦄🦄")
+        break
+    except Exception as error:
+        print("❌❌❌❌❌I am unable to connect to the database❌❌❌❌❌")
+        print(error)
+        time.sleep(2)
 
 
 
@@ -25,13 +33,17 @@ mypost=[{"id":uuid.uuid4(),"title":"hello world","content":"how things going?"},
 #get all posts
 @app.get('/posts')
 async def get_posts():
-    return {'posts':mypost}
+    cursor.execute("SELECT * FROM posts")
+    posts=cursor.fetchall()
+    return {'posts':posts}
 
 
 #get latest post
 @app.get('/posts/latest')
 async def latest_post():
-    return mypost[-1]
+    cursor.execute("SELECT * FROM posts ORDER BY created_at DESC")
+    new_posts=cursor.fetchall()
+    return new_posts
 
 #get specific post
 @app.get('/posts/{id}')
