@@ -28,7 +28,6 @@ while True:
 
 
 
-mypost=[{"id":uuid.uuid4(),"title":"hello world","content":"how things going?"},{"id":"2","title":"hello world2","content":"how things going?2"}]
 
 #get all posts
 @app.get('/posts')
@@ -47,20 +46,22 @@ async def latest_post():
 
 #get specific post
 @app.get('/posts/{id}')
-async def get_post(id:str):  
-    for p in mypost:
-        if id==p["id"]:
-            return {"result":p}
-    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="not found")
+async def get_post(id:int):  
+    try:
+        cursor.execute("SELECT * FROM posts WHERE id=%s",(str(id),))
+        post=cursor.fetchone()
+        return {"result":post}
+    except: 
+        HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="not found")
   
 #create a post
 @app.post('/posts', status_code=status.HTTP_201_CREATED)
 async def create_posts(post:Post):
-    newpost=post.dict()
     try:
-        newpost["id"]= str(uuid.uuid4())
-        mypost.append(newpost)
-        return {"message":"post created"}
+        cursor.execute("INSERT INTO posts(title,content,published) VALUES(%s,%s,%s)RETURNING *",(post.title,post.content,post.published))
+        new_post=cursor.fetchone()
+        conn.commit()
+        return {"message":f"post created: {new_post}"}
     except:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,detail="couldn't create")
 
@@ -68,22 +69,26 @@ async def create_posts(post:Post):
 
 #delete a post
 @app.delete('/posts/{id}',status_code=status.HTTP_204_NO_CONTENT)
-async def delete_post(id:str):
-    
-    for i,post in enumerate(mypost):
-        if post["id"]==id:
-            mypost.pop(i)
-            return Response(status_code=status.HTTP_204_NO_CONTENT)
-    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"post with {id} does not exist")
+async def delete_post(id:int):
 
+    cursor.execute("DELETE FROM posts where id=%s RETURNING *",(str(id),))
+    deleted_post= cursor.fetchone()
+    conn.commit()
+
+    if deleted_post==None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"post with {id} does not exist")
+    else:
+        return {"deleted":deleted_post}  
 
 
 @app.patch('/posts/{id}',status_code=status.HTTP_200_OK)
-async def update_post(id:str,p:Post):
-    for i,post in enumerate(mypost):
-        if post["id"]==id:
-            post["title"]=p.title
-            post["content"]=p.content
-            return {"messg":"updated"}
-    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"post with {id} does not exist")
+async def update_post(id:int,p:Post):
+    cursor.execute("UPDATE posts SET title=%s, content=%s, published=%s WHERE id=%s RETURNING *",(p.title,p.content,p.published,str(id)))
+    updated_post=cursor.fetchone()
+
+    conn.commit()
     
+    if updated_post==None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"post with {id} does not exist")
+
+    return {"updated post":updated_post}
