@@ -1,12 +1,23 @@
 from typing import Optional
-from fastapi import FastAPI, Response, status, HTTPException
+from fastapi import FastAPI,status, HTTPException,Depends
 from pydantic import BaseModel
-import uuid
 import psycopg2
 from psycopg2.extras import RealDictCursor
 import time
+from . import models
+from sqlalchemy.orm import Session
+from .database import engine, get_db
+
+
+
+models.Base.metadata.create_all(bind=engine)
+
+
 
 app= FastAPI()
+
+
+
 
 class Post(BaseModel):
     title:str
@@ -19,7 +30,7 @@ while True:
     try:
         conn = psycopg2.connect(dbname='fastapi', user='postgres' ,host='localhost', password='arjunomia',cursor_factory=RealDictCursor)
         cursor= conn.cursor()
-        print("🦄🦄🦄🦄🦄🦄Connection scuccess🦄🦄🦄🦄🦄")
+        print("🦄🦄🦄🦄🦄🦄Connection success🦄🦄🦄🦄🦄")
         break
     except Exception as error:
         print("❌❌❌❌❌I am unable to connect to the database❌❌❌❌❌")
@@ -27,6 +38,15 @@ while True:
         time.sleep(2)
 
 
+
+@app.get("/")
+def root():
+    return {"message":"hi world"}
+
+
+@app.get("/sql")
+def testing(db: Session=Depends(get_db)):
+        return {"status":"success"}
 
 
 #get all posts
