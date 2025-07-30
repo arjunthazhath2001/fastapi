@@ -46,7 +46,8 @@ def root():
 
 @app.get("/sql")
 def testing(db: Session=Depends(get_db)):
-        return {"status":"success"}
+        posts= db.query(models.Post).all()
+        return {"message":posts}
 
 
 #get all posts
