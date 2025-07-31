@@ -46,15 +46,16 @@ def root():
 
 @app.get("/sql")
 def testing(db: Session=Depends(get_db)):
-        posts= db.query(models.Post).all()
-        return {"message":posts}
+        print(posts)
+        return {"message":"success"}
 
 
 #get all posts
 @app.get('/posts')
-async def get_posts():
-    cursor.execute("SELECT * FROM posts")
-    posts=cursor.fetchall()
+async def get_posts(db: Session=Depends(get_db)):
+    # cursor.execute("SELECT * FROM posts")
+    # posts=cursor.fetchall()
+    posts= db.query(models.Post).all()
     return {'posts':posts}
 
 
