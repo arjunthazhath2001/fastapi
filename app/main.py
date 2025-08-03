@@ -5,6 +5,7 @@ from psycopg2.extras import RealDictCursor
 import time
 from . import models,schemas
 from sqlalchemy.orm import Session
+from typing import List
 from .database import engine, get_db
 
 
@@ -37,7 +38,7 @@ def root():
 
 
 #get all posts
-@app.get('/posts')
+@app.get('/posts',response_model=List[schemas.Post])
 async def get_posts(db: Session=Depends(get_db)):
     # cursor.execute("SELECT * FROM posts")
     # posts=cursor.fetchall()
@@ -64,7 +65,7 @@ async def get_post(id:int,db:Session=Depends(get_db)):
         HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="not found")
   
 #create a post
-@app.post('/posts', status_code=status.HTTP_201_CREATED)
+@app.post('/posts', status_code=status.HTTP_201_CREATED,response_model=schemas.Post)
 async def create_posts(post:schemas.PostCreate,db: Session=Depends(get_db)):
     try:
         # cursor.execute("INSERT INTO posts(title,content,published) VALUES(%s,%s,%s)RETURNING *",(post.title,post.content,post.published))
