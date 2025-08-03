@@ -2,10 +2,13 @@ from .. import models,schemas
 from sqlalchemy.orm import Session
 from fastapi import status, HTTPException,Depends, APIRouter
 from ..database import get_db
+from typing import List
 
+
+router=APIRouter()
 
 #get all posts
-@app.get('/posts',response_model=List[schemas.Post])
+@router.get('/posts',response_model=List[schemas.Post])
 async def get_posts(db: Session=Depends(get_db)):
     # cursor.execute("SELECT * FROM posts")
     # posts=cursor.fetchall()
@@ -14,14 +17,14 @@ async def get_posts(db: Session=Depends(get_db)):
 
 
 #get latest post
-@app.get('/posts/latest',response_model=List[schemas.Post])
-async def latest_post():
-    cursor.execute("SELECT * FROM posts ORDER BY created_at DESC")
-    new_posts=cursor.fetchall()
+@router.get('/posts/latest',response_model=List[schemas.Post])
+async def latest_post(db:Session=Depends(get_db)):
+    new_posts=db.query(models.Post).order_by(models.Post.created_at.desc()).all
     return new_posts
 
+
 #get specific post
-@app.get('/posts/{id}',response_model=schemas.Post)
+@router.get('/posts/{id}',response_model=schemas.Post)
 async def get_post(id:int,db:Session=Depends(get_db)):  
     try:
         # cursor.execute("SELECT * FROM posts WHERE id=%s",(str(id),))
@@ -32,7 +35,7 @@ async def get_post(id:int,db:Session=Depends(get_db)):
         HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="not found")
   
 #create a post
-@app.post('/posts', status_code=status.HTTP_201_CREATED,response_model=schemas.Post)
+@router.post('/posts', status_code=status.HTTP_201_CREATED,response_model=schemas.Post)
 async def create_posts(post:schemas.PostCreate,db: Session=Depends(get_db)):
     try:
         # cursor.execute("INSERT INTO posts(title,content,published) VALUES(%s,%s,%s)RETURNING *",(post.title,post.content,post.published))
