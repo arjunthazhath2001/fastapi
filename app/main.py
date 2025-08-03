@@ -47,14 +47,14 @@ async def get_posts(db: Session=Depends(get_db)):
 
 
 #get latest post
-@app.get('/posts/latest')
+@app.get('/posts/latest',response_model=List[schemas.Post])
 async def latest_post():
     cursor.execute("SELECT * FROM posts ORDER BY created_at DESC")
     new_posts=cursor.fetchall()
     return new_posts
 
 #get specific post
-@app.get('/posts/{id}')
+@app.get('/posts/{id}',response_model=schemas.Post)
 async def get_post(id:int,db:Session=Depends(get_db)):  
     try:
         # cursor.execute("SELECT * FROM posts WHERE id=%s",(str(id),))
@@ -102,16 +102,20 @@ async def delete_post(id:int,db:Session=Depends(get_db)):
         return Response(status_code=status.HTTP_204_NO_CONTENT)
     
 
-@app.patch('/posts/{id}',status_code=status.HTTP_200_OK)
+@app.patch('/posts/{id}',status_code=status.HTTP_200_OK,response_model=schemas.Post)
 async def update_post(id:int,updated_post:schemas.PostCreate,db:Session=Depends(get_db)):
     # cursor.execute("UPDATE posts SET title=%s, content=%s, published=%s WHERE id=%s RETURNING *",(p.title,p.content,p.published,str(id)))
     # updated_post=cursor.fetchone()
 
     # conn.commit()
-    post= db.query(models.Post).filter(models.Post.id==id)
-    if post.first()==None:
+    post_query= db.query(models.Post).filter(models.Post.id==id)
+    post= post_query.first()
+
+    if post==None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"post with {id} does not exist")
-    else:
-        new_post=post.update(updated_post.dict(),synchronize_session=False)
-        db.commit()
-    return new_post
+
+    post_query.update(updated_post.dict(),synchronize_session=False)
+    db.commit()
+    db.refresh(post)
+    
+    return post
