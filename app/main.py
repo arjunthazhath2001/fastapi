@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 from typing import List
 from .database import engine, get_db
 
-
+from .utils import hash
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -120,12 +120,14 @@ async def update_post(id:int,updated_post:schemas.PostCreate,db:Session=Depends(
 
 
 
-@app.post('/users', status_code=status.HTTP_201_CREATED,response_model=schemas.User)
+@app.post('/users', status_code=status.HTTP_201_CREATED,response_model=schemas.UserOut)
 async def create_user(user:schemas.UserCreate,db: Session=Depends(get_db)):
     try:
-        # cursor.execute("INSERT INTO posts(title,content,published) VALUES(%s,%s,%s)RETURNING *",(post.title,post.content,post.published))
-        # new_post=cursor.fetchone()
-        # conn.commit()
+        # hash the password - user.password
+
+        hashed_password= hash(user.password)
+
+        user.password= hashed_password
 
         new_user=models.User(**user.dict())
         db.add(new_user)
