@@ -7,12 +7,21 @@ class PostBase(BaseModel):
     published:bool=True
 
 
+class UserBase(BaseModel):
+    name: str
+    email: str
+    password: str
+
+
 # all our pydantic models has to extend the base model
 
 # our request schema
 class PostCreate(PostBase):
     pass
 
+
+class UserCreate(UserBase):
+    pass
 
 # our response schema
 class Post(PostBase):
@@ -23,3 +32,9 @@ class Post(PostBase):
         orm_mode = True
 
 
+
+class User(UserBase):
+    pass
+
+    class Config:
+        orm_mode= True
