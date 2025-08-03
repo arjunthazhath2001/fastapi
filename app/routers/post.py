@@ -1,40 +1,7 @@
-from typing import Optional
-from fastapi import FastAPI,status, HTTPException,Depends,Response
-import psycopg2
-from psycopg2.extras import RealDictCursor
-import time
-from . import models,schemas
+from .. import models,schemas
 from sqlalchemy.orm import Session
-from typing import List
-from .database import engine, get_db
-
-from .utils import hash
-
-models.Base.metadata.create_all(bind=engine)
-
-
-app= FastAPI()
-
-
-
-
-while True:
-    try:
-        conn = psycopg2.connect(dbname='fastapi', user='postgres' ,host='localhost', password='arjunomia',cursor_factory=RealDictCursor)
-        cursor= conn.cursor()
-        print("🦄🦄🦄🦄🦄🦄Connection success🦄🦄🦄🦄🦄")
-        break
-    except Exception as error:
-        print("❌❌❌❌❌I am unable to connect to the database❌❌❌❌❌")
-        print(error)
-        time.sleep(2)
-
-
-
-@app.get("/")
-def root():
-    return {"message":"hi world"}
-
+from fastapi import status, HTTPException,Depends, APIRouter
+from ..database import get_db
 
 
 #get all posts
@@ -107,7 +74,7 @@ async def update_post(id:int,updated_post:schemas.PostCreate,db:Session=Depends(
 
     # conn.commit()
     post_query= db.query(models.Post).filter(models.Post.id==id)
-    post= post_query.first()
+    post= http://127.0.0.1:8000/userspost_query.first()
 
     if post==None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"post with {id} does not exist")
@@ -118,34 +85,6 @@ async def update_post(id:int,updated_post:schemas.PostCreate,db:Session=Depends(
 
     return post
 
-
-
-@app.post('/users', status_code=status.HTTP_201_CREATED,response_model=schemas.UserOut)
-async def create_user(user:schemas.UserCreate,db: Session=Depends(get_db)):
-    try:
-        # hash the password - user.password
-
-        hashed_password= hash(user.password)
-
-        user.password= hashed_password
-
-        new_user=models.User(**user.dict())
-        db.add(new_user)
-        db.commit()
-        db.refresh(new_user)
-        return new_user
-    except Exception as e:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"couldn't create: {str(e)}")
-
-
-@app.get('/users/{id}',response_model=schemas.UserOut)
-def get_user(id:int, db: Session= Depends(get_db)):
-    user= db.query(models.User).filter(models.User.id==id).first()
-
-    if not user:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail=f"User with id:{id} does not exist")
-    
-    return user
 
 
 
