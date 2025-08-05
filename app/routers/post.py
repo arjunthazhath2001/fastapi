@@ -1,14 +1,17 @@
 from .. import models,schemas
 from sqlalchemy.orm import Session
-from fastapi import status, HTTPException,Depends, APIRouter
+from fastapi import status, HTTPException,Depends, APIRouter,Response
 from ..database import get_db
 from typing import List
 
 
-router=APIRouter()
+router=APIRouter(
+    prefix= "/posts",
+    tags=["Posts"]
+)
 
 #get all posts
-@router.get('/posts',response_model=List[schemas.Post])
+@router.get('/',response_model=List[schemas.Post])
 async def get_posts(db: Session=Depends(get_db)):
     # cursor.execute("SELECT * FROM posts")
     # posts=cursor.fetchall()
@@ -17,14 +20,14 @@ async def get_posts(db: Session=Depends(get_db)):
 
 
 #get latest post
-@router.get('/posts/latest',response_model=List[schemas.Post])
+@router.get('/latest',response_model=List[schemas.Post])
 async def latest_post(db:Session=Depends(get_db)):
-    new_posts=db.query(models.Post).order_by(models.Post.created_at.desc()).all
+    new_posts=db.query(models.Post).order_by(models.Post.created_at.desc()).all()
     return new_posts
 
 
 #get specific post
-@router.get('/posts/{id}',response_model=schemas.Post)
+@router.get('/{id}',response_model=schemas.Post)
 async def get_post(id:int,db:Session=Depends(get_db)):  
     try:
         # cursor.execute("SELECT * FROM posts WHERE id=%s",(str(id),))
@@ -32,10 +35,10 @@ async def get_post(id:int,db:Session=Depends(get_db)):
         post=db.query(models.Post).filter(models.Post.id==id).first()
         return post
     except: 
-        HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="not found")
   
 #create a post
-@router.post('/posts', status_code=status.HTTP_201_CREATED,response_model=schemas.Post)
+@router.post('/', status_code=status.HTTP_201_CREATED,response_model=schemas.Post)
 async def create_posts(post:schemas.PostCreate,db: Session=Depends(get_db)):
     try:
         # cursor.execute("INSERT INTO posts(title,content,published) VALUES(%s,%s,%s)RETURNING *",(post.title,post.content,post.published))
@@ -54,7 +57,7 @@ async def create_posts(post:schemas.PostCreate,db: Session=Depends(get_db)):
 
 
 #delete a post
-@app.delete('/posts/{id}',status_code=status.HTTP_204_NO_CONTENT)
+@router.delete('/{id}',status_code=status.HTTP_204_NO_CONTENT)
 async def delete_post(id:int,db:Session=Depends(get_db)):
 
     # cursor.execute("DELETE FROM posts where id=%s RETURNING *",(str(id),))
@@ -70,14 +73,14 @@ async def delete_post(id:int,db:Session=Depends(get_db)):
         return Response(status_code=status.HTTP_204_NO_CONTENT)
     
 
-@app.patch('/posts/{id}',status_code=status.HTTP_200_OK,response_model=schemas.Post)
+@router.patch('/{id}',status_code=status.HTTP_200_OK,response_model=schemas.Post)
 async def update_post(id:int,updated_post:schemas.PostCreate,db:Session=Depends(get_db)):
     # cursor.execute("UPDATE posts SET title=%s, content=%s, published=%s WHERE id=%s RETURNING *",(p.title,p.content,p.published,str(id)))
     # updated_post=cursor.fetchone()
 
     # conn.commit()
     post_query= db.query(models.Post).filter(models.Post.id==id)
-    post= http://127.0.0.1:8000/userspost_query.first()
+    post= post_query.first()
 
     if post==None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"post with {id} does not exist")

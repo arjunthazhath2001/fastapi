@@ -8,6 +8,7 @@ from sqlalchemy.orm import Session
 from .database import engine, get_db
 
 from .utils import hash
+from .routers import post,user
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -28,6 +29,10 @@ while True:
         print(error)
         time.sleep(2)
 
+
+
+app.include_router(post.router)
+app.include_router(user.router)
 
 
 @app.get("/")
