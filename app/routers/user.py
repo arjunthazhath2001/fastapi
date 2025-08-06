@@ -1,4 +1,4 @@
-from .. import models,schemas
+from .. import models,schemas,utils
 from sqlalchemy.orm import Session
 from fastapi import status, HTTPException,Depends, APIRouter
 from ..database import get_db
@@ -14,7 +14,7 @@ async def create_user(user:schemas.UserCreate,db: Session=Depends(get_db)):
     try:
         # hash the password - user.password
 
-        hashed_password= hash(user.password)
+        hashed_password= utils.hash(user.password)
 
         user.password= hashed_password
 
