@@ -1,11 +1,10 @@
-from typing import Optional
-from fastapi import FastAPI,status, HTTPException,Depends,Response
+
+from fastapi import FastAPI
 import psycopg2
 from psycopg2.extras import RealDictCursor
 import time
-from . import models,schemas
-from sqlalchemy.orm import Session
-from .database import engine, get_db
+from . import models
+from .database import engine
 
 from .utils import hash
 from .routers import post,user,auth
