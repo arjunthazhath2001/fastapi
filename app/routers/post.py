@@ -13,7 +13,7 @@ router=APIRouter(
 
 #get all posts
 @router.get('/',response_model=List[schemas.Post])
-async def get_posts(db: Session=Depends(get_db)):
+async def get_posts(db: Session=Depends(get_db),user_id:int=Depends(oauth2.get_current_user)):
     # cursor.execute("SELECT * FROM posts")
     # posts=cursor.fetchall()
     posts= db.query(models.Post).all()
@@ -22,14 +22,14 @@ async def get_posts(db: Session=Depends(get_db)):
 
 #get latest post
 @router.get('/latest',response_model=List[schemas.Post])
-async def latest_post(db:Session=Depends(get_db)):
+async def latest_post(db:Session=Depends(get_db),user_id:int=Depends(oauth2.get_current_user)):
     new_posts=db.query(models.Post).order_by(models.Post.created_at.desc()).all()
     return new_posts
 
 
 #get specific post
 @router.get('/{id}',response_model=schemas.Post)
-async def get_post(id:int,db:Session=Depends(get_db)):  
+async def get_post(id:int,db:Session=Depends(get_db),user_id:int=Depends(oauth2.get_current_user)):  
     try:
         # cursor.execute("SELECT * FROM posts WHERE id=%s",(str(id),))
         # post=cursor.fetchone()
@@ -40,7 +40,9 @@ async def get_post(id:int,db:Session=Depends(get_db)):
   
 #create a post
 @router.post('/', status_code=status.HTTP_201_CREATED,response_model=schemas.Post)
-async def create_posts(post:schemas.PostCreate,db: Session=Depends(get_db),get_current_user:int=Depends(oauth2.get_current_user)):
+async def create_posts(post:schemas.PostCreate,db: Session=Depends(get_db),user_id:int=Depends(oauth2.get_current_user)):
+    
+    print(user_id)
     try:
         # cursor.execute("INSERT INTO posts(title,content,published) VALUES(%s,%s,%s)RETURNING *",(post.title,post.content,post.published))
         # new_post=cursor.fetchone()
@@ -59,7 +61,7 @@ async def create_posts(post:schemas.PostCreate,db: Session=Depends(get_db),get_c
 
 #delete a post
 @router.delete('/{id}',status_code=status.HTTP_204_NO_CONTENT)
-async def delete_post(id:int,db:Session=Depends(get_db)):
+async def delete_post(id:int,db:Session=Depends(get_db),user_id:int=Depends(oauth2.get_current_user)):
 
     # cursor.execute("DELETE FROM posts where id=%s RETURNING *",(str(id),))
     # deleted_post= cursor.fetchone()
@@ -75,7 +77,7 @@ async def delete_post(id:int,db:Session=Depends(get_db)):
     
 
 @router.patch('/{id}',status_code=status.HTTP_200_OK,response_model=schemas.Post)
-async def update_post(id:int,updated_post:schemas.PostCreate,db:Session=Depends(get_db)):
+async def update_post(id:int,updated_post:schemas.PostCreate,db:Session=Depends(get_db),user_id:int=Depends(oauth2.get_current_user)):
     # cursor.execute("UPDATE posts SET title=%s, content=%s, published=%s WHERE id=%s RETURNING *",(p.title,p.content,p.published,str(id)))
     # updated_post=cursor.fetchone()
 
