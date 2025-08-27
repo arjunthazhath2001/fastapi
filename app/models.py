@@ -20,7 +20,3 @@ class User(Base):
     created_at=Column(TIMESTAMP(timezone=True),nullable=False,server_default=text('now()'))
 
 
-
-# class Trial():
-#     def test():
-#         return "it works"
