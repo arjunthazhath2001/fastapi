@@ -10,10 +10,6 @@ class Post(Base):
     published= Column(Boolean,server_default='True',nullable=False)
     created_at= Column(TIMESTAMP(timezone=True),nullable=False,server_default=text('now()'))
 
-    ################testing@##################
-
-    ########new testing######
-
 
 class User(Base):
     __tablename__="users"
