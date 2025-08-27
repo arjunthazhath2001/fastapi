@@ -12,6 +12,8 @@ class Post(Base):
 
     ################testing@##################
 
+    ########new testing######
+
 
 class User(Base):
     __tablename__="users"
@@ -21,4 +23,3 @@ class User(Base):
     password= Column(String,nullable=False)
     created_at=Column(TIMESTAMP(timezone=True),nullable=False,server_default=text('now()'))
 
-    
