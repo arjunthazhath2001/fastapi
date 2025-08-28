@@ -15,3 +15,5 @@ def get_db():
         yield db
     finally:
         db.close()
+
+#this file handles the database connection for this project
