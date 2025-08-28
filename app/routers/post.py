@@ -5,6 +5,7 @@ from ..database import get_db
 from typing import List
 from .. import oauth2
 
+#this file handles post creation
 
 router=APIRouter(
     prefix= "/posts",
