@@ -17,3 +17,4 @@ def get_db():
         db.close()
 
 #this file handles the database connection for this project
+

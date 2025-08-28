@@ -43,6 +43,6 @@ def root():
 
 
 
-
+#this file handles the routing to other services like user creation, authentication and posting
 
 
