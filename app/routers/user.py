@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from fastapi import status, HTTPException,Depends, APIRouter
 from ..database import get_db
 
+#this file handles user creation
 
 router= APIRouter(
     prefix="/users",
