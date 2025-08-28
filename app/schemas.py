@@ -2,6 +2,8 @@ from pydantic import BaseModel, EmailStr
 from datetime import datetime
 from typing import Optional
 
+#this file defines the table schemas of our project
+
 class PostBase(BaseModel):
     title:str
     content: str
