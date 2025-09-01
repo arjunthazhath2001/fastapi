@@ -4,7 +4,9 @@ from sqlalchemy import Column,Integer,String,Boolean,TIMESTAMP,text
 #this file 
 # creates 
 # models/tables 
-# for our project
+# for 
+# our 
+# project
 
 class Post(Base):
     __tablename__= "posts"
