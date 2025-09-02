@@ -40,7 +40,7 @@ class Post(PostBase):
 class User(UserBase):
     pass
 
-
+#output for user schema
 class UserOut(BaseModel):
     id:int
     email: EmailStr
