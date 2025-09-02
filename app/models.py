@@ -5,8 +5,8 @@ from sqlalchemy import Column,Integer,String,Boolean,TIMESTAMP,text
 # models/tables for our 
 # project
 
-class Post(Base):
-    __tablename__= "posts"
+class Post(Base): # post table
+    __tablename__= "posts"  
     id = Column(Integer,primary_key=True,nullable=False)
     title = Column(String,nullable=False)
     content= Column(String,nullable=False)
